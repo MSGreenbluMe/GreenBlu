@@ -39,7 +39,6 @@ export interface ModelWeights {
  */
 export class EnsemblePredictor {
   private modelWeights: ModelWeights;
-  private adaptiveWeighting: boolean = true;
   private minDataPoints: { lstm: number; xgboost: number; kan: number };
   private userId: string = '';
 
@@ -546,15 +545,6 @@ export class EnsemblePredictor {
     Object.keys(this.modelWeights).forEach(key => {
       this.modelWeights[key as keyof ModelWeights] /= total;
     });
-
-    this.adaptiveWeighting = false;
-  }
-
-  /**
-   * Re-enable adaptive weighting
-   */
-  enableAdaptiveWeighting(): void {
-    this.adaptiveWeighting = true;
   }
 }
 

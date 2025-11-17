@@ -486,7 +486,7 @@ export class OnlineLearningManager {
 
     // Apply aggregated updates from server
     // This would merge global model improvements with local model
-    const data = JSON.parse(updates);
+    JSON.parse(updates); // Validate JSON
 
     // Implementation would blend global and local weights
     console.log('Federated updates applied');

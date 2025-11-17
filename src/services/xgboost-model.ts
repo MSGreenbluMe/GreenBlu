@@ -493,7 +493,7 @@ export class XGBoostPredictor {
   /**
    * Calculate prediction confidence
    */
-  private calculateConfidence(features: number[]): number {
+  private calculateConfidence(_features: number[]): number {
     // Use feature importance and tree depth as confidence proxy
     // More important features being present -> higher confidence
     // This is a simplified heuristic

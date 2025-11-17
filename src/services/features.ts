@@ -119,7 +119,6 @@ export class FeatureEngineering {
     const date = new Date(timestamp);
     const hour = date.getHours();
     const dayOfWeek = date.getDay();
-    const dayOfMonth = date.getDate();
     const month = date.getMonth();
 
     // Cyclical encoding for periodic features
@@ -195,10 +194,6 @@ export class FeatureEngineering {
       isPeakEnergy = this.isInTimeRange(currentTime, circadianData.optimal_windows.peak_energy) ? 1 : 0;
       isCreativePeak = this.isInTimeRange(currentTime, circadianData.optimal_windows.creative_peak) ? 1 : 0;
     }
-
-    // Chronotype encoding
-    const chronotypeMap = { lark: 0, intermediate: 0.5, owl: 1 };
-    const chronotype = chronotypeMap[circadianData.chronotype || 'intermediate'];
 
     return {
       values: [circadianPhase, hoursSinceWake / 16, sleepQuality, isPeakEnergy, isCreativePeak],
