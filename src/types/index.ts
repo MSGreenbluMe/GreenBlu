@@ -624,3 +624,105 @@ export interface MouseTrackingSession {
   metrics_history: MouseMetrics[];
   current_metrics: MouseMetrics;
 }
+
+// Manager Dashboard Types
+export type RiskLevel = 'low' | 'moderate' | 'high' | 'critical';
+export type AlertType = 'burnout' | 'stress' | 'disengagement' | 'fatigue' | 'low_mood';
+
+export interface TeamMember {
+  user_id: string;
+  name: string;
+  email?: string;
+  avatar?: string;
+  role?: string;
+  department?: string;
+  current_mood?: VAD;
+  mood_confidence?: number;
+  last_checkin?: number;
+  flow_status: 'in_flow' | 'near_flow' | 'not_in_flow';
+  risk_level: RiskLevel;
+  active_alerts: TeamAlert[];
+  privacy_consent: boolean;
+  manager_view_enabled: boolean;
+}
+
+export interface TeamAlert {
+  alert_id: string;
+  user_id: string;
+  type: AlertType;
+  severity: RiskLevel;
+  message: string;
+  details: string;
+  created_at: number;
+  acknowledged: boolean;
+  acknowledged_at?: number;
+  resolved: boolean;
+  resolved_at?: number;
+  suggested_actions: string[];
+}
+
+export interface TeamAnalytics {
+  team_id: string;
+  period_start: number;
+  period_end: number;
+
+  // Aggregated mood
+  avg_valence: number;
+  avg_arousal: number;
+  avg_dominance: number;
+  mood_trend: 'improving' | 'stable' | 'declining';
+
+  // Flow metrics
+  total_flow_hours: number;
+  avg_flow_hours_per_member: number;
+  flow_participation_rate: number;
+
+  // Risk metrics
+  members_at_risk: number;
+  active_alerts_count: number;
+  burnout_risk_score: number;
+
+  // Engagement
+  checkin_rate: number;
+  avg_checkins_per_day: number;
+  intervention_usage_rate: number;
+
+  // Time patterns
+  peak_productivity_hours: string[];
+  optimal_meeting_times: string[];
+  team_energy_pattern: { hour: number; energy: number }[];
+}
+
+export interface ManagerIntervention {
+  intervention_id: string;
+  manager_id: string;
+  target_user_id: string;
+  type: 'break_reminder' | 'wellness_check' | 'intervention_suggestion' | 'kudos' | 'schedule_chat';
+  message?: string;
+  sent_at: number;
+  delivered: boolean;
+  response?: string;
+  response_at?: number;
+}
+
+export interface TeamSettings {
+  team_id: string;
+  manager_id: string;
+  alert_thresholds: {
+    burnout_threshold: number;
+    stress_threshold: number;
+    low_mood_threshold: number;
+    inactivity_days: number;
+  };
+  notification_preferences: {
+    email_alerts: boolean;
+    in_app_alerts: boolean;
+    daily_summary: boolean;
+    weekly_report: boolean;
+  };
+  privacy_settings: {
+    show_individual_data: boolean;
+    anonymize_alerts: boolean;
+    require_consent: boolean;
+  };
+}

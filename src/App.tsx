@@ -8,6 +8,7 @@ import Interventions from './pages/Interventions';
 import JobCrafting from './pages/JobCrafting';
 import JobMatching from './pages/JobMatching';
 import Analytics from './pages/Analytics';
+import ManagerDashboard from './pages/ManagerDashboard';
 import { FloatingMouseIndicator } from './components/MouseMoodIndicator';
 import { db } from './services/database';
 import { interventionTemplates } from './data/intervention-templates';
@@ -16,7 +17,7 @@ import { gamificationService } from './services/gamification-service';
 import { mouseTracker } from './services/mouse-tracker';
 import type { User } from './types';
 
-type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics';
+type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics' | 'manager';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('onboarding');
@@ -196,6 +197,13 @@ function App() {
 
       {currentView === 'analytics' && user && (
         <Analytics
+          userId={user.user_id}
+          onNavigate={setCurrentView}
+        />
+      )}
+
+      {currentView === 'manager' && user && (
+        <ManagerDashboard
           userId={user.user_id}
           onNavigate={setCurrentView}
         />

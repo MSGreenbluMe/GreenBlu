@@ -9,7 +9,7 @@ import type { EnsemblePrediction } from '../services/ensemble-predictor';
 import type { MoodEntry, FlowSession, PersonalityProfile } from '../types';
 
 interface DashboardProps {
-  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics') => void;
+  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics' | 'manager') => void;
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
@@ -246,6 +246,29 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               Customize your experience
             </p>
           </button>
+        </div>
+
+        {/* Manager Dashboard */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-md p-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Manager Dashboard
+              </h2>
+              <p className="text-blue-100">
+                Monitor team wellbeing, detect burnout risks, and send interventions
+              </p>
+            </div>
+            <button
+              onClick={() => onNavigate('manager')}
+              className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center gap-2"
+            >
+              <span>Open Dashboard</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Weekly Summary & Progress Cards */}
