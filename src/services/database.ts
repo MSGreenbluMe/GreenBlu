@@ -446,6 +446,40 @@ class DatabaseService {
       });
     }
   }
+
+  // Data management operations
+  async deleteAllUserData(userId: string): Promise<void> {
+    const db = this.ensureDB();
+
+    // Delete from each store
+    const stores = [
+      'mood_entries',
+      'circadian_data',
+      'personality_responses',
+      'flow_sessions',
+      'interventions',
+      'graph_nodes',
+      'graph_edges'
+    ];
+
+    for (const storeName of stores) {
+      const store = db.transaction(storeName, 'readwrite').objectStore(storeName);
+      const allKeys = await store.getAllKeys();
+
+      for (const key of allKeys) {
+        const record = await store.get(key);
+        if (record && record.user_id === userId) {
+          await store.delete(key);
+        }
+      }
+    }
+
+    // Delete user and personality profile
+    await db.delete('users', userId);
+    await db.delete('personality_profiles', userId);
+
+    console.log(`All data deleted for user: ${userId}`);
+  }
 }
 
 // Export singleton instance
