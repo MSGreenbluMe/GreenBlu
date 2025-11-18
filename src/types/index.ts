@@ -35,7 +35,7 @@ export interface MoodEntry {
 // Weather Data
 export interface WeatherData {
   temperature: number;
-  condition: 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'partly-cloudy';
+  condition: 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'partly-cloudy' | 'stormy';
   pressure: number;
   humidity?: number;
 }

@@ -3,6 +3,7 @@ import { db } from '../services/database';
 import { predictionPipeline } from '../services/prediction-pipeline';
 import { reminderScheduler } from '../services/reminder-scheduler';
 import { notificationService } from '../services/notification-service';
+import { weatherService } from '../services/weather-service';
 import type { UserSettings } from '../types';
 
 interface SettingsProps {
@@ -39,11 +40,53 @@ export default function Settings({ onNavigate }: SettingsProps) {
     nextPersonalityReminder: number | null;
     deferredCount: number;
   } | null>(null);
+  const [weatherApiKey, setWeatherApiKey] = useState('');
+  const [weatherTestResult, setWeatherTestResult] = useState<string | null>(null);
 
   useEffect(() => {
     loadSettings();
     loadNotificationStatus();
+    loadWeatherApiKey();
   }, []);
+
+  async function loadWeatherApiKey() {
+    try {
+      const result = await chrome.storage.local.get('weather_api_key');
+      if (result.weather_api_key) {
+        setWeatherApiKey(result.weather_api_key);
+      }
+    } catch (error) {
+      console.error('Failed to load weather API key:', error);
+    }
+  }
+
+  async function saveWeatherApiKey() {
+    try {
+      await chrome.storage.local.set({ weather_api_key: weatherApiKey });
+      weatherService.setApiKey(weatherApiKey);
+      setWeatherTestResult('API key saved successfully!');
+      setTimeout(() => setWeatherTestResult(null), 3000);
+    } catch (error) {
+      console.error('Failed to save weather API key:', error);
+      setWeatherTestResult('Failed to save API key');
+    }
+  }
+
+  async function testWeatherApi() {
+    if (!weatherApiKey) {
+      setWeatherTestResult('Please enter an API key first');
+      return;
+    }
+
+    try {
+      weatherService.setApiKey(weatherApiKey);
+      const weather = await weatherService.getCurrentWeather();
+      setWeatherTestResult(`✅ Success! Current: ${weather.temperature}°C, ${weather.condition}`);
+      await chrome.storage.local.set({ weather_api_key: weatherApiKey });
+    } catch (error) {
+      setWeatherTestResult('❌ Failed to fetch weather. Check your API key.');
+    }
+  }
 
   async function loadSettings() {
     try {
@@ -383,6 +426,71 @@ export default function Settings({ onNavigate }: SettingsProps) {
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 dark:peer-focus:ring-teal-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-teal-600"></div>
               </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Weather API Settings */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            🌦️ Weather API
+          </h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                OpenWeatherMap API Key
+              </label>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Get a free API key from{' '}
+                <a
+                  href="https://openweathermap.org/api"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-teal-600 hover:underline"
+                >
+                  openweathermap.org
+                </a>
+                {' '}to enable real weather data for mood predictions.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  value={weatherApiKey}
+                  onChange={(e) => setWeatherApiKey(e.target.value)}
+                  placeholder="Enter your API key"
+                  className="flex-1 px-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white"
+                />
+                <button
+                  onClick={testWeatherApi}
+                  className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Test
+                </button>
+                <button
+                  onClick={saveWeatherApiKey}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Save
+                </button>
+              </div>
+              {weatherTestResult && (
+                <p className={`mt-2 text-sm ${
+                  weatherTestResult.includes('✅') || weatherTestResult.includes('Success')
+                    ? 'text-teal-600 dark:text-teal-400'
+                    : weatherTestResult.includes('❌') || weatherTestResult.includes('Failed')
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-gray-600 dark:text-gray-400'
+                }`}>
+                  {weatherTestResult}
+                </p>
+              )}
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Note:</strong> Weather data improves mood predictions by accounting for temperature, pressure, and conditions that affect your wellbeing.
+              </p>
             </div>
           </div>
         </div>

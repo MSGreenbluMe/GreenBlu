@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '../services/database';
 import { calculateChronotype, getChronotypeProfile } from '../services/circadian-calculator';
+import { weatherService } from '../services/weather-service';
 import type { CircadianEntry, WeatherData } from '../types';
 
 interface MorningCheckinProps {
@@ -13,6 +14,7 @@ export default function MorningCheckin({ onComplete, onClose }: MorningCheckinPr
   const [wakeTime, setWakeTime] = useState('');
   const [sleepQuality, setSleepQuality] = useState(3);
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
   // Chronotype detection fields
@@ -32,29 +34,28 @@ export default function MorningCheckin({ onComplete, onClose }: MorningCheckinPr
   }, []);
 
   async function fetchWeather() {
+    setWeatherLoading(true);
     try {
-      // Try to get weather from OpenWeatherMap API
-      // For now, we'll use mock data
-      // In production, you would use: navigator.geolocation.getCurrentPosition()
-      // and then call the OpenWeatherMap API
+      // Get real weather from the weather service
+      const weatherData = await weatherService.getCurrentWeather();
 
-      const mockWeather: WeatherData = {
-        temperature: 22,
-        condition: 'partly-cloudy',
-        pressure: 1013,
-        humidity: 65
-      };
-
-      setWeather(mockWeather);
+      setWeather({
+        temperature: weatherData.temperature,
+        condition: weatherData.condition,
+        pressure: weatherData.pressure,
+        humidity: weatherData.humidity
+      });
     } catch (error) {
       console.error('Failed to fetch weather:', error);
-      // Use default weather
+      // Use default weather on error
       setWeather({
         temperature: 20,
         condition: 'partly-cloudy',
         pressure: 1013,
         humidity: 50
       });
+    } finally {
+      setWeatherLoading(false);
     }
   }
 
