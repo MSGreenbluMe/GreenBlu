@@ -4,6 +4,7 @@ import { formatDate, getFlowLevel } from '../lib/utils';
 import { predictionPipeline } from '../services/prediction-pipeline';
 import Octopus from '../components/Octopus';
 import GamificationDisplay from '../components/GamificationDisplay';
+import MouseMoodIndicator from '../components/MouseMoodIndicator';
 import type { EnsemblePrediction } from '../services/ensemble-predictor';
 import type { MoodEntry, FlowSession, PersonalityProfile } from '../types';
 
@@ -366,12 +367,23 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </div>
         </div>
 
-        {/* Gamification Progress */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Your Progress
-          </h2>
-          <GamificationDisplay userId="default-user" />
+        {/* Mouse-Detected Mood & Gamification */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Mouse Mood Detection */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Real-Time Mood Detection
+            </h2>
+            <MouseMoodIndicator userId="default-user" showMetrics />
+          </div>
+
+          {/* Gamification Progress */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Your Progress
+            </h2>
+            <GamificationDisplay userId="default-user" compact />
+          </div>
         </div>
 
         {/* Recent Mood History */}

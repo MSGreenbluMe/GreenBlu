@@ -571,3 +571,56 @@ export interface XPEvent {
   multiplier?: number;
   source?: string;
 }
+
+// Mouse Movement Tracking Types
+export interface MouseMovement {
+  x: number;
+  y: number;
+  timestamp: number;
+  velocity: number;
+  acceleration: number;
+}
+
+export interface MouseMetrics {
+  // Speed metrics
+  avg_velocity: number;
+  max_velocity: number;
+  velocity_variance: number;
+
+  // Acceleration metrics
+  avg_acceleration: number;
+  jerk_count: number; // Sudden direction changes
+
+  // Hesitation metrics
+  pause_count: number;
+  avg_pause_duration: number;
+  hesitation_ratio: number; // Time paused / total time
+
+  // Trajectory metrics
+  path_efficiency: number; // Direct distance / actual path length
+  curvature_index: number; // How curved the path is
+  direction_changes: number;
+
+  // Click metrics
+  click_count: number;
+  double_click_count: number;
+  misclick_rate: number;
+
+  // Derived mood indicators
+  estimated_vad: VAD;
+  confidence: number;
+
+  // Metadata
+  sample_count: number;
+  duration_ms: number;
+  timestamp: number;
+}
+
+export interface MouseTrackingSession {
+  session_id: string;
+  user_id: string;
+  start_time: number;
+  end_time?: number;
+  metrics_history: MouseMetrics[];
+  current_metrics: MouseMetrics;
+}

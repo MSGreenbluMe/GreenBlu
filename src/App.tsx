@@ -8,10 +8,12 @@ import Interventions from './pages/Interventions';
 import JobCrafting from './pages/JobCrafting';
 import JobMatching from './pages/JobMatching';
 import Analytics from './pages/Analytics';
+import { FloatingMouseIndicator } from './components/MouseMoodIndicator';
 import { db } from './services/database';
 import { interventionTemplates } from './data/intervention-templates';
 import { reminderScheduler } from './services/reminder-scheduler';
 import { gamificationService } from './services/gamification-service';
+import { mouseTracker } from './services/mouse-tracker';
 import type { User } from './types';
 
 type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics';
@@ -92,10 +94,12 @@ function App() {
         setCurrentView('onboarding');
       }
 
-      // Initialize reminder scheduler and gamification
+      // Initialize services for existing user
       if (existingUser) {
         await reminderScheduler.initialize(existingUser.user_id);
         await gamificationService.initialize(existingUser.user_id);
+        await mouseTracker.initialize(existingUser.user_id);
+        mouseTracker.start();
       }
     } catch (error) {
       console.error('Failed to initialize app:', error);
@@ -195,6 +199,11 @@ function App() {
           userId={user.user_id}
           onNavigate={setCurrentView}
         />
+      )}
+
+      {/* Floating Mouse Mood Indicator */}
+      {user && currentView !== 'onboarding' && (
+        <FloatingMouseIndicator userId={user.user_id} />
       )}
     </div>
   );
