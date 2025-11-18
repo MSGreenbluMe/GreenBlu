@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import MoodTracker from './components/MoodTracker';
+import PersonalityQuestion from './components/PersonalityQuestion';
 import Dashboard from './pages/Dashboard';
 import Onboarding from './pages/Onboarding';
+import PersonalityProfile from './pages/PersonalityProfile';
 import { db } from './services/database';
 import type { User } from './types';
 
-type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'settings';
+type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('onboarding');
@@ -107,6 +109,22 @@ function App() {
             onComplete={() => setCurrentView('dashboard')}
           />
         </div>
+      )}
+
+      {currentView === 'personality' && user && (
+        <div className="p-6">
+          <PersonalityQuestion
+            userId={user.user_id}
+            onComplete={() => setCurrentView('dashboard')}
+          />
+        </div>
+      )}
+
+      {currentView === 'personality-profile' && user && (
+        <PersonalityProfile
+          userId={user.user_id}
+          onNavigate={setCurrentView}
+        />
       )}
     </div>
   );
