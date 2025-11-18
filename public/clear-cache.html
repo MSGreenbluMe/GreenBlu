@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Octopus Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        button {
+            background: #14b8a6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #0d9488; }
+    </style>
+</head>
+<body>
+    <h1>🐙 GreenBlu Cache Test</h1>
+
+    <div id="status"></div>
+
+    <h2>Cache Clearing Options:</h2>
+
+    <button onclick="clearAllCaches()">1. Clear All Caches</button>
+    <button onclick="clearStorage()">2. Clear Storage Only</button>
+    <button onclick="reloadHard()">3. Hard Reload</button>
+
+    <h2>Test Results:</h2>
+    <div id="results"></div>
+
+    <h2>Manual Steps if buttons don't work:</h2>
+    <ol>
+        <li><strong>Open Chrome DevTools:</strong> Press F12 or Cmd+Option+I (Mac)</li>
+        <li><strong>Go to Application tab</strong> (top menu)</li>
+        <li><strong>Clear storage:</strong>
+            <ul>
+                <li>In left sidebar, click "Storage"</li>
+                <li>Click "Clear site data" button</li>
+            </ul>
+        </li>
+        <li><strong>Disable cache:</strong>
+            <ul>
+                <li>Go to "Network" tab</li>
+                <li>Check "Disable cache" checkbox at the top</li>
+            </ul>
+        </li>
+        <li><strong>Hard reload:</strong> Keep DevTools open, right-click the reload button, select "Empty Cache and Hard Reload"</li>
+    </ol>
+
+    <h2>Or try Incognito Mode:</h2>
+    <p>Open <a href="http://localhost:5173/" target="_blank">http://localhost:5173/</a> in an incognito window (Cmd+Shift+N or Ctrl+Shift+N)</p>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = `status ${isError ? 'error' : 'success'}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+
+        async function clearAllCaches() {
+            try {
+                // Unregister service workers
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                    log('✓ Service worker unregistered');
+                }
+
+                // Clear caches
+                const cacheNames = await caches.keys();
+                for (let name of cacheNames) {
+                    await caches.delete(name);
+                    log(`✓ Cache deleted: ${name}`);
+                }
+
+                // Clear storage
+                localStorage.clear();
+                sessionStorage.clear();
+                log('✓ LocalStorage and SessionStorage cleared');
+
+                // Clear IndexedDB
+                const dbs = await indexedDB.databases();
+                for (let db of dbs) {
+                    indexedDB.deleteDatabase(db.name);
+                    log(`✓ IndexedDB deleted: ${db.name}`);
+                }
+
+                log('✅ ALL CACHES CLEARED! Now reload localhost:5173', false);
+
+                setTimeout(() => {
+                    window.location.href = 'http://localhost:5173/';
+                }, 2000);
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, true);
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            log('✓ Storage cleared! Now reload localhost:5173');
+        }
+
+        function reloadHard() {
+            log('Performing hard reload...');
+            setTimeout(() => {
+                location.reload(true);
+            }, 500);
+        }
+
+        // Check current status
+        window.addEventListener('load', () => {
+            statusDiv.innerHTML = `
+                <div class="status success">
+                    <strong>Server Status:</strong> Connected to http://localhost:5173/ <br>
+                    <strong>Current Time:</strong> ${new Date().toLocaleTimeString()} <br>
+                    <strong>Page Version:</strong> 2.0 (with cache clearing)
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
