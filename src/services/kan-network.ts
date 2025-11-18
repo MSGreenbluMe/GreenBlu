@@ -1,7 +1,7 @@
 // KAN (Kolmogorov-Arnold Network) Implementation
 // More interpretable than traditional neural networks
 
-import type { VAD, MoodEntry, PersonalityProfile } from '../types';
+import type { VAD, MoodEntry } from '../types';
 
 /**
  * KAN Network for mood prediction
@@ -177,7 +177,7 @@ export class KANPredictor {
     }
   }
 
-  private backpropagate(input: number[], target: number[], output: number[], learningRate: number): void {
+  private backpropagate(input: number[], target: number[], _output: number[], learningRate: number): void {
     // Simplified backprop - in production, use proper automatic differentiation
     // For now, using numerical gradient approximation
     const epsilon = 0.0001;

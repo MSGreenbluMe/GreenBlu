@@ -7,7 +7,7 @@ import { CVGenerator } from '../services/cv-generator';
 import { RoleFitAnalyzer, type RoleFitAnalysis } from '../services/role-fit-analyzer';
 import { roleArchetypes, getAllCategories, getRolesByCategory } from '../data/role-archetypes';
 import PersonalityCVComponent from '../components/PersonalityCV';
-import type { PersonalityCV, PersonalityProfile, FlowSession, MoodEntry, RoleArchetype } from '../types';
+import type { PersonalityCV, RoleArchetype } from '../types';
 
 interface JobCraftingProps {
   userId: string;

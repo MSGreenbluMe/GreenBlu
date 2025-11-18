@@ -474,7 +474,7 @@ function StrengthsView({ profile }: { profile: PersonalityProfile }) {
         </div>
       ) : (
         <div className="space-y-4">
-          {profile.strengths.map((strength, index) => (
+          {profile.strengths.map((strength, _index) => (
             <div
               key={strength.name}
               className="bg-gradient-to-r from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 rounded-xl p-6"

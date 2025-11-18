@@ -7,7 +7,6 @@ import type {
   JobMatchResult,
   RoleArchetype,
   PersonalityProfile,
-  GeniusType
 } from '../types';
 import { getRoleById } from '../data/role-archetypes';
 import { RoleFitAnalyzer } from './role-fit-analyzer';

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { db } from '../services/database';
 import { formatDate, getMoodEmoji, getFlowLevel } from '../lib/utils';
-import { predictionPipeline, type EnsemblePrediction } from '../services/prediction-pipeline';
+import { predictionPipeline } from '../services/prediction-pipeline';
+import type { EnsemblePrediction } from '../services/ensemble-predictor';
 import type { MoodEntry, FlowSession, PersonalityProfile } from '../types';
 
 interface DashboardProps {
@@ -29,7 +30,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
       setMoodHistory(moods);
       setFlowSessions(flows);
-      setPersonalityProfile(profile);
+      setPersonalityProfile(profile || null);
 
       // Load predictions if we have recent mood data
       if (moods.length > 0) {
@@ -490,7 +491,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
                 <h3 className="text-sm font-semibold text-white mb-2">Recommended Actions</h3>
                 <ul className="space-y-1 text-sm text-purple-100">
-                  {predictions.metadata.recommendedActions.map((action, idx) => (
+                  {predictions.metadata.recommendedActions.map((action: string, idx: number) => (
                     <li key={idx}>• {action}</li>
                   ))}
                 </ul>

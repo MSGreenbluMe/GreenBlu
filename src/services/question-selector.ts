@@ -9,12 +9,12 @@ import type {
 } from '../types';
 import { PERSONALITY_QUESTIONS } from '../data/personality-questions';
 
-interface QuestionScore {
-  question: PersonalityQuestion;
-  informationGain: number;
-  priority: number;
-  confidence: number;
-}
+// interface QuestionScore {
+//   question: PersonalityQuestion;
+//   informationGain: number;
+//   priority: number;
+//   confidence: number;
+// }
 
 export class QuestionSelector {
   /**
@@ -23,7 +23,7 @@ export class QuestionSelector {
   static selectDailyQuestions(
     profile: PersonalityProfile | undefined,
     responses: PersonalityResponse[],
-    lastQuestionDate?: string
+    _lastQuestionDate?: string
   ): PersonalityQuestion[] {
     const today = new Date().toISOString().split('T')[0];
 

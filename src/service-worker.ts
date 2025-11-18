@@ -87,8 +87,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 });
 
 async function handleMorningCheckin() {
-  const settings = await getUserSettings();
   // Morning check-in is always enabled as it's essential for circadian tracking
+  await getUserSettings(); // Load settings for future use
 
   // Initialize prediction pipeline for the day
   try {
@@ -260,7 +260,7 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 });
 
 // Handle messages from popup
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'ENABLE_FLOW_MODE') {
     chrome.storage.local.set({ flowModeActive: true });
     chrome.action.setBadgeText({ text: '🌊' });

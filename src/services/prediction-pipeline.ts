@@ -1,7 +1,7 @@
 // Complete Prediction Pipeline Integration
 // High-level API for using the entire AI/ML system
 
-import type { MoodEntry, VADWithConfidence } from '../types';
+import type { MoodEntry } from '../types';
 import { db } from './database';
 import { ensemblePredictor, type EnsemblePrediction } from './ensemble-predictor';
 import { onlineLearning } from './online-learning';

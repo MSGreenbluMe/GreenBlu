@@ -1,7 +1,7 @@
 // Ensemble Predictor for GreenBlu.ai
 // Combines KAN, LSTM, XGBoost, and Baseline models for robust predictions
 
-import type { VAD, MoodEntry, VADWithConfidence, PersonalityProfile, CircadianEntry } from '../types';
+import type { VAD, MoodEntry, VADWithConfidence } from '../types';
 import { featureEngineering, type FeatureVector } from './features';
 import { kanPredictor } from './kan-network';
 import { lstmPredictor, type LSTMPrediction } from './lstm-model';

@@ -15,13 +15,13 @@ interface JobMatchingProps {
 
 type View = 'create-job' | 'view-matches';
 
-export default function JobMatching({ userId, onNavigate }: JobMatchingProps) {
+export default function JobMatching({ userId, onNavigate: _onNavigate }: JobMatchingProps) {
   const [view, setView] = useState<View>('create-job');
   const [jobRequirement, setJobRequirement] = useState<JobRequirement | null>(null);
   const [matches, setMatches] = useState<JobMatchResult[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<JobMatchResult | null>(null);
   const [candidateCVs, setCandidateCVs] = useState<PersonalityCV[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
 
   // Form state for job creation
   const [jobTitle, setJobTitle] = useState('');

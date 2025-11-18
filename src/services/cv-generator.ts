@@ -271,7 +271,7 @@ export class CVGenerator {
 
     // Ideal work style
     let idealWorkStyle = 'Balanced approach';
-    if (profile.derived.autonomy_preference) {
+    if (profile.derived.structure_need !== undefined) {
       const autonomy = profile.derived.structure_need;
       const collaboration = profile.derived.collaboration_preference;
 
