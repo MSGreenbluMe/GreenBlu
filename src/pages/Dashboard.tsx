@@ -3,6 +3,7 @@ import { db } from '../services/database';
 import { formatDate, getFlowLevel } from '../lib/utils';
 import { predictionPipeline } from '../services/prediction-pipeline';
 import Octopus from '../components/Octopus';
+import GamificationDisplay from '../components/GamificationDisplay';
 import type { EnsemblePrediction } from '../services/ensemble-predictor';
 import type { MoodEntry, FlowSession, PersonalityProfile } from '../types';
 
@@ -363,6 +364,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               {(avgFlowQuality * 100).toFixed(0)}%
             </div>
           </div>
+        </div>
+
+        {/* Gamification Progress */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            Your Progress
+          </h2>
+          <GamificationDisplay userId="default-user" />
         </div>
 
         {/* Recent Mood History */}

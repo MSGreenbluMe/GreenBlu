@@ -11,6 +11,7 @@ import Analytics from './pages/Analytics';
 import { db } from './services/database';
 import { interventionTemplates } from './data/intervention-templates';
 import { reminderScheduler } from './services/reminder-scheduler';
+import { gamificationService } from './services/gamification-service';
 import type { User } from './types';
 
 type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics';
@@ -91,9 +92,10 @@ function App() {
         setCurrentView('onboarding');
       }
 
-      // Initialize reminder scheduler
+      // Initialize reminder scheduler and gamification
       if (existingUser) {
         await reminderScheduler.initialize(existingUser.user_id);
+        await gamificationService.initialize(existingUser.user_id);
       }
     } catch (error) {
       console.error('Failed to initialize app:', error);

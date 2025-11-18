@@ -516,3 +516,58 @@ export interface JobMatchResult {
 
   calculated_at: number;
 }
+
+// Gamification Types
+export type AchievementCategory = 'mood' | 'flow' | 'personality' | 'streak' | 'intervention' | 'social' | 'milestone';
+export type AchievementRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+
+export interface Achievement {
+  achievement_id: string;
+  name: string;
+  description: string;
+  category: AchievementCategory;
+  rarity: AchievementRarity;
+  icon: string;
+  points: number;
+  requirement: {
+    type: string;
+    target: number;
+    current?: number;
+  };
+  unlocked: boolean;
+  unlocked_at?: number;
+  progress: number; // 0-100
+}
+
+export interface Streak {
+  streak_id: string;
+  type: 'daily_checkin' | 'flow_session' | 'intervention' | 'personality';
+  current_count: number;
+  longest_count: number;
+  last_activity: number;
+  started_at: number;
+  frozen_until?: number; // Grace period
+}
+
+export interface GamificationProgress {
+  user_id: string;
+  level: number;
+  current_xp: number;
+  total_xp: number;
+  xp_to_next_level: number;
+  achievements: Achievement[];
+  streaks: Streak[];
+  badges_earned: number;
+  rank_title: string;
+  updated_at: number;
+}
+
+export interface XPEvent {
+  event_id: string;
+  user_id: string;
+  timestamp: number;
+  action: string;
+  xp_earned: number;
+  multiplier?: number;
+  source?: string;
+}

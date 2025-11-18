@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { db } from '../services/database';
 import { generateId, getMoodLabel, calculateFlowProbability } from '../lib/utils';
 import { reminderScheduler } from '../services/reminder-scheduler';
+import { gamificationService } from '../services/gamification-service';
 import type { MoodEntry, VAD } from '../types';
 import VAD2DVisualizer from './VAD2DVisualizer';
 import Octopus from './Octopus';
@@ -45,6 +46,19 @@ export default function MoodTracker({ userId, onComplete, onBack }: MoodTrackerP
 
       // Store last mood entry for service worker
       await chrome.storage.local.set({ last_mood_entry: entry });
+
+      // Record gamification progress
+      try {
+        const gamificationResult = await gamificationService.recordMoodCheckin(vad.valence);
+        if (gamificationResult.achievements.length > 0) {
+          console.log('🏆 Achievements unlocked:', gamificationResult.achievements.map(a => a.name));
+        }
+        if (gamificationResult.xp) {
+          console.log(`✨ +${gamificationResult.xp.xp_earned} XP earned`);
+        }
+      } catch (gamificationError) {
+        console.warn('Gamification recording failed:', gamificationError);
+      }
 
       // Flow state detection
       const wasInFlow = await chrome.storage.local.get('current_flow_state');
