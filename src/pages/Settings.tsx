@@ -186,21 +186,13 @@ export default function Settings({ onNavigate }: SettingsProps) {
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            ← Back
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Settings
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Customize your GreenBlu.ai experience
-            </p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Settings
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Customize your GreenBlu.ai experience
+          </p>
         </div>
 
         {/* Notification Preferences */}
