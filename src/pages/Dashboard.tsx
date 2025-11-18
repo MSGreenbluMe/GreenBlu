@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { db } from '../services/database';
 import { formatDate, getMoodEmoji, getFlowLevel } from '../lib/utils';
-import type { MoodEntry, FlowSession } from '../types';
+import { predictionPipeline, type EnsemblePrediction } from '../services/prediction-pipeline';
+import type { MoodEntry, FlowSession, PersonalityProfile } from '../types';
 
 interface DashboardProps {
   onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching') => void;
@@ -10,7 +11,10 @@ interface DashboardProps {
 export default function Dashboard({ onNavigate }: DashboardProps) {
   const [moodHistory, setMoodHistory] = useState<MoodEntry[]>([]);
   const [flowSessions, setFlowSessions] = useState<FlowSession[]>([]);
+  const [predictions, setPredictions] = useState<EnsemblePrediction | null>(null);
+  const [personalityProfile, setPersonalityProfile] = useState<PersonalityProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [predictionsLoading, setPredictionsLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -18,16 +22,66 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
   async function loadData() {
     try {
-      const moods = await db.getMoodHistory('default-user', 7);
-      const flows = await db.getFlowSessions('default-user', 7);
+      const userId = 'default-user';
+      const moods = await db.getMoodHistory(userId, 7);
+      const flows = await db.getFlowSessions(userId, 7);
+      const profile = await db.getPersonalityProfile(userId);
 
       setMoodHistory(moods);
       setFlowSessions(flows);
+      setPersonalityProfile(profile);
+
+      // Load predictions if we have recent mood data
+      if (moods.length > 0) {
+        loadPredictions(moods[moods.length - 1]);
+      }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function loadPredictions(latestMood: MoodEntry) {
+    setPredictionsLoading(true);
+    try {
+      await predictionPipeline.initialize('default-user');
+      const prediction = await predictionPipeline.predict(latestMood);
+      setPredictions(prediction);
+    } catch (error) {
+      console.error('Failed to load predictions:', error);
+    } finally {
+      setPredictionsLoading(false);
+    }
+  }
+
+  // Calculate flow streak (consecutive days with flow sessions)
+  function calculateFlowStreak(): number {
+    if (flowSessions.length === 0) return 0;
+
+    let streak = 0;
+    let currentDate = new Date().setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 30; i++) {
+      const dayStart = currentDate - (i * 24 * 60 * 60 * 1000);
+      const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+
+      const hasFlowToday = flowSessions.some(
+        session => session.start_time >= dayStart && session.start_time < dayEnd
+      );
+
+      if (hasFlowToday) {
+        if (i === streak) streak++;
+        else break;
+      } else if (i === 0) {
+        // No flow today, check yesterday
+        continue;
+      } else {
+        break;
+      }
+    }
+
+    return streak;
   }
 
   const totalFlowHours = flowSessions.reduce(
@@ -161,6 +215,88 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </button>
         </div>
 
+        {/* Weekly Summary & Progress Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Weekly Summary */}
+          <div className="bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl shadow-lg p-6 text-white">
+            <h3 className="text-lg font-semibold mb-4">This Week</h3>
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm opacity-90">Check-ins</div>
+                <div className="text-3xl font-bold">{moodHistory.length}</div>
+              </div>
+              <div>
+                <div className="text-sm opacity-90">Avg Valence</div>
+                <div className="text-2xl font-bold">
+                  {moodHistory.length > 0
+                    ? (moodHistory.reduce((sum, m) => sum + m.vad.valence, 0) / moodHistory.length).toFixed(2)
+                    : 'N/A'}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm opacity-90">Flow Sessions</div>
+                <div className="text-2xl font-bold">{flowSessions.length}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Personality Assessment Progress */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Personality Profile
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                  <span className="text-gray-900 dark:text-white font-semibold">
+                    {personalityProfile?.assessment_progress?.toFixed(0) || 0}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
+                    style={{ width: `${personalityProfile?.assessment_progress || 0}%` }}
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Questions Answered</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {personalityProfile?.questions_answered || 0}
+                </div>
+              </div>
+              <button
+                onClick={() => onNavigate('personality')}
+                className="w-full py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                Continue Assessment
+              </button>
+            </div>
+          </div>
+
+          {/* Flow Streak */}
+          <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl shadow-lg p-6 text-white">
+            <h3 className="text-lg font-semibold mb-4">Flow Streak</h3>
+            <div className="text-center">
+              <div className="text-6xl font-bold mb-2">{calculateFlowStreak()}</div>
+              <div className="text-sm opacity-90">
+                {calculateFlowStreak() === 1 ? 'day' : 'days'} in a row
+              </div>
+              <div className="mt-4 text-2xl">
+                {calculateFlowStreak() >= 7 ? '🔥🔥🔥' : calculateFlowStreak() >= 3 ? '🔥🔥' : calculateFlowStreak() >= 1 ? '🔥' : '💪'}
+              </div>
+              <div className="text-xs mt-2 opacity-75">
+                {calculateFlowStreak() === 0
+                  ? 'Start your streak today!'
+                  : calculateFlowStreak() >= 7
+                  ? 'Incredible! Keep it up!'
+                  : 'Great work! Keep going!'}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
@@ -249,17 +385,128 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           )}
         </div>
 
-        {/* Coming Soon */}
-        <div className="bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl shadow-lg p-6 text-white">
-          <h2 className="text-2xl font-semibold mb-2">Coming Soon 🚀</h2>
-          <ul className="space-y-2 text-sm">
-            <li>• AI mood predictions (1h, 4h, 8h ahead)</li>
-            <li>• Job crafting insights and career recommendations</li>
-            <li>• Team analytics and collaboration optimization</li>
-            <li>• Advanced flow state tracking and optimization</li>
-            <li>• Personalized intervention scheduling</li>
-          </ul>
-        </div>
+        {/* AI Predictions Section */}
+        {predictions && (
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-white">
+                AI Mood Predictions
+              </h2>
+              <span className="px-3 py-1 bg-white/20 rounded-full text-xs text-white font-semibold">
+                PREDICTED
+              </span>
+            </div>
+            <p className="text-purple-100 mb-6">
+              Based on your patterns, here's how we predict you'll feel
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* 1h Prediction */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-purple-100">In 1 Hour</span>
+                  <span className="text-3xl">{getMoodEmoji(predictions['1h'])}</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between text-white">
+                    <span>Valence:</span>
+                    <span className="font-semibold">{predictions['1h'].valence.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-white">
+                    <span>Arousal:</span>
+                    <span className="font-semibold">{predictions['1h'].arousal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-white">
+                    <span>Dominance:</span>
+                    <span className="font-semibold">{predictions['1h'].dominance.toFixed(2)}</span>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-white/20">
+                    <div className="flex justify-between text-purple-100">
+                      <span>Confidence:</span>
+                      <span className="font-semibold">{(predictions['1h'].confidence * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4h Prediction */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-purple-100">In 4 Hours</span>
+                  <span className="text-3xl">{getMoodEmoji(predictions['4h'])}</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between text-white">
+                    <span>Valence:</span>
+                    <span className="font-semibold">{predictions['4h'].valence.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-white">
+                    <span>Arousal:</span>
+                    <span className="font-semibold">{predictions['4h'].arousal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-white">
+                    <span>Dominance:</span>
+                    <span className="font-semibold">{predictions['4h'].dominance.toFixed(2)}</span>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-white/20">
+                    <div className="flex justify-between text-purple-100">
+                      <span>Confidence:</span>
+                      <span className="font-semibold">{(predictions['4h'].confidence * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 8h Prediction */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-purple-100">In 8 Hours</span>
+                  <span className="text-3xl">{getMoodEmoji(predictions['8h'])}</span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between text-white">
+                    <span>Valence:</span>
+                    <span className="font-semibold">{predictions['8h'].valence.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-white">
+                    <span>Arousal:</span>
+                    <span className="font-semibold">{predictions['8h'].arousal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-white">
+                    <span>Dominance:</span>
+                    <span className="font-semibold">{predictions['8h'].dominance.toFixed(2)}</span>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-white/20">
+                    <div className="flex justify-between text-purple-100">
+                      <span>Confidence:</span>
+                      <span className="font-semibold">{(predictions['8h'].confidence * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {predictions.metadata.recommendedActions.length > 0 && (
+              <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <h3 className="text-sm font-semibold text-white mb-2">Recommended Actions</h3>
+                <ul className="space-y-1 text-sm text-purple-100">
+                  {predictions.metadata.recommendedActions.map((action, idx) => (
+                    <li key={idx}>• {action}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {predictionsLoading && (
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-xl p-6 mb-8">
+            <div className="text-center py-8 text-white">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div>
+              <div>Loading AI predictions...</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
