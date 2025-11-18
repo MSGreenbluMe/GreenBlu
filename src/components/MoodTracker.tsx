@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { db } from '../services/database';
 import { generateId, getMoodLabel, calculateFlowProbability } from '../lib/utils';
+import { reminderScheduler } from '../services/reminder-scheduler';
 import type { MoodEntry, VAD } from '../types';
 import VAD2DVisualizer from './VAD2DVisualizer';
 import Octopus from './Octopus';
@@ -44,6 +45,22 @@ export default function MoodTracker({ userId, onComplete, onBack }: MoodTrackerP
 
       // Store last mood entry for service worker
       await chrome.storage.local.set({ last_mood_entry: entry });
+
+      // Flow state detection
+      const wasInFlow = await chrome.storage.local.get('current_flow_state');
+      const previousFlowState = wasInFlow.current_flow_state?.inFlow || false;
+      const currentFlowState = flowProbability >= 0.6; // Flow threshold
+
+      // Notify if flow state changed
+      if (currentFlowState && !previousFlowState) {
+        // Entering flow
+        await reminderScheduler.notifyFlowStateChange(true);
+        console.log('🌊 Flow state detected - notifications paused');
+      } else if (!currentFlowState && previousFlowState) {
+        // Exiting flow
+        await reminderScheduler.notifyFlowStateChange(false);
+        console.log('🎯 Flow state ended - notifications resumed');
+      }
 
       console.log('Mood entry saved:', entry);
 

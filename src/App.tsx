@@ -10,6 +10,7 @@ import JobMatching from './pages/JobMatching';
 import Analytics from './pages/Analytics';
 import { db } from './services/database';
 import { interventionTemplates } from './data/intervention-templates';
+import { reminderScheduler } from './services/reminder-scheduler';
 import type { User } from './types';
 
 type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics';
@@ -88,6 +89,11 @@ function App() {
         await db.saveUser(newUser);
         setUser(newUser);
         setCurrentView('onboarding');
+      }
+
+      // Initialize reminder scheduler
+      if (existingUser) {
+        await reminderScheduler.initialize(existingUser.user_id);
       }
     } catch (error) {
       console.error('Failed to initialize app:', error);

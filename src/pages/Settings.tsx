@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { db } from '../services/database';
 import { predictionPipeline } from '../services/prediction-pipeline';
+import { reminderScheduler } from '../services/reminder-scheduler';
+import { notificationService } from '../services/notification-service';
 import type { UserSettings } from '../types';
 
 interface SettingsProps {
@@ -31,9 +33,16 @@ export default function Settings({ onNavigate }: SettingsProps) {
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState<{
+    enabled: boolean;
+    nextMoodReminder: number | null;
+    nextPersonalityReminder: number | null;
+    deferredCount: number;
+  } | null>(null);
 
   useEffect(() => {
     loadSettings();
+    loadNotificationStatus();
   }, []);
 
   async function loadSettings() {
@@ -47,12 +56,36 @@ export default function Settings({ onNavigate }: SettingsProps) {
     }
   }
 
+  async function loadNotificationStatus() {
+    try {
+      const status = await reminderScheduler.getStatus();
+      setNotificationStatus(status);
+    } catch (error) {
+      console.error('Failed to load notification status:', error);
+    }
+  }
+
+  async function requestNotificationPermission() {
+    const granted = await notificationService.requestPermission();
+    if (granted) {
+      await loadNotificationStatus();
+      alert('Notifications enabled! You\'ll receive reminders based on your preferences.');
+    } else {
+      alert('Notifications permission denied. Please enable in browser settings.');
+    }
+  }
+
   async function saveSettings() {
     try {
       const user = await db.getUser('default-user');
       if (user) {
         user.settings = settings;
         await db.saveUser(user);
+
+        // Update reminder scheduler with new preferences
+        await reminderScheduler.updatePreferences(settings);
+        await loadNotificationStatus();
+
         alert('Settings saved successfully!');
       }
     } catch (error) {
@@ -194,6 +227,67 @@ export default function Settings({ onNavigate }: SettingsProps) {
             Customize your GreenBlu.ai experience
           </p>
         </div>
+
+        {/* Notification Status */}
+        {notificationStatus && (
+          <div className={`rounded-xl shadow-md border-2 p-6 mb-6 ${
+            notificationStatus.enabled
+              ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800'
+              : 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
+          }`}>
+            <div className="flex items-start gap-4">
+              <div className="text-4xl">
+                {notificationStatus.enabled ? '🔔' : '🔕'}
+              </div>
+              <div className="flex-1">
+                <h3 className={`text-lg font-semibold mb-2 ${
+                  notificationStatus.enabled
+                    ? 'text-teal-900 dark:text-teal-100'
+                    : 'text-orange-900 dark:text-orange-100'
+                }`}>
+                  {notificationStatus.enabled
+                    ? 'Notifications Active'
+                    : 'Notifications Disabled'}
+                </h3>
+
+                {!notificationStatus.enabled ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-orange-800 dark:text-orange-200">
+                      Enable notifications to receive mood check-in reminders and intervention suggestions.
+                    </p>
+                    <button
+                      onClick={requestNotificationPermission}
+                      className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Enable Notifications
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2 text-sm text-teal-800 dark:text-teal-200">
+                    {notificationStatus.nextMoodReminder && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Next Mood Reminder:</span>
+                        <span>{new Date(notificationStatus.nextMoodReminder).toLocaleTimeString()}</span>
+                      </div>
+                    )}
+                    {notificationStatus.nextPersonalityReminder && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Next Personality Question:</span>
+                        <span>{new Date(notificationStatus.nextPersonalityReminder).toLocaleString()}</span>
+                      </div>
+                    )}
+                    {notificationStatus.deferredCount > 0 && (
+                      <div className="flex items-center gap-2 mt-3 p-3 bg-teal-100 dark:bg-teal-800 rounded-lg">
+                        <span className="font-medium">⏸️ Deferred Notifications:</span>
+                        <span>{notificationStatus.deferredCount} (paused during flow)</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Notification Preferences */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
