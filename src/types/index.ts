@@ -332,3 +332,187 @@ export interface KnowledgeGraph {
   edges: Map<string, GraphEdge>;
   last_updated: number;
 }
+
+// Revolutionary Personality CV Types
+export interface PersonalityCV {
+  cv_id: string;
+  user_id: string;
+  created_at: number;
+  last_updated: number;
+
+  // Core personality data
+  personality_profile: PersonalityProfile;
+
+  // Flow patterns (what triggers flow)
+  flow_triggers: FlowTrigger[];
+
+  // Energy map (what energizes vs drains)
+  energy_map: {
+    energizing_activities: EnergyActivity[];
+    draining_activities: EnergyActivity[];
+  };
+
+  // Role fit scores
+  role_fit_history: RoleFitScore[];
+
+  // Verification
+  data_verified: boolean;
+  verification_days: number; // Days of actual data collected
+  confidence_score: number; // 0-100
+
+  // Summary
+  summary: {
+    top_genius_types: GeniusType[];
+    ideal_work_style: string;
+    optimal_team_size: 'solo' | 'small' | 'medium' | 'large';
+    autonomy_preference: 'high' | 'medium' | 'low';
+    structure_preference: 'high' | 'medium' | 'low';
+  };
+}
+
+export interface FlowTrigger {
+  activity_type: string;
+  task_description: string;
+  complexity_level: 'low' | 'medium' | 'high';
+  avg_flow_score: number; // 0-1
+  frequency: number; // How often this triggers flow
+  conditions: {
+    time_of_day?: 'morning' | 'midday' | 'afternoon' | 'evening';
+    team_size?: number;
+    autonomy_level?: 'high' | 'medium' | 'low';
+    environment?: string;
+  };
+}
+
+export interface EnergyActivity {
+  activity: string;
+  energy_impact: number; // -1 (draining) to +1 (energizing)
+  frequency: number; // How often encountered
+  duration_preference: string; // e.g., "15-30 min", "1-2 hours"
+  ideal_time_of_day?: 'morning' | 'midday' | 'afternoon' | 'evening';
+}
+
+export interface RoleFitScore {
+  role_id: string;
+  role_title: string;
+  overall_score: number; // 0-100
+  component_scores: {
+    personality_fit: number; // 0-100
+    genius_fit: number; // 0-100
+    flow_fit: number; // 0-100
+    energy_fit: number; // 0-100
+    skills_fit: number; // 0-100
+  };
+  match_quality: 'perfect' | 'excellent' | 'good' | 'moderate' | 'poor';
+  calculated_at: number;
+}
+
+// Job Role Archetype
+export interface RoleArchetype {
+  role_id: string;
+  title: string;
+  category: 'engineering' | 'design' | 'product' | 'data' | 'marketing' | 'sales' | 'operations' | 'leadership';
+  description: string;
+
+  // Personality requirements
+  required_genius: {
+    primary: GeniusType[];
+    secondary: GeniusType[];
+  };
+
+  ideal_big_five: {
+    openness: { min: number; max: number; weight: number };
+    conscientiousness: { min: number; max: number; weight: number };
+    extraversion: { min: number; max: number; weight: number };
+    agreeableness: { min: number; max: number; weight: number };
+    neuroticism: { min: number; max: number; weight: number };
+  };
+
+  mbti_preferences: {
+    EI?: 'E' | 'I' | 'neutral';
+    SN?: 'S' | 'N' | 'neutral';
+    TF?: 'T' | 'F' | 'neutral';
+    JP?: 'J' | 'P' | 'neutral';
+  };
+
+  // Flow requirements
+  flow_triggers_needed: string[];
+
+  // Energy requirements
+  energy_profile: {
+    high_energy_tasks: string[];
+    low_energy_tasks: string[];
+    autonomy_level: 'high' | 'medium' | 'low';
+    collaboration_level: 'high' | 'medium' | 'low';
+  };
+
+  // Task breakdown
+  typical_tasks: {
+    task: string;
+    frequency: 'daily' | 'weekly' | 'monthly';
+    complexity: 'low' | 'medium' | 'high';
+    energy_requirement: 'low' | 'medium' | 'high';
+  }[];
+
+  // Derived traits importance
+  derived_traits_weight: {
+    stress_resilience: number; // 0-1
+    optimism: number;
+    flow_tendency: number;
+    collaboration_preference: number;
+    structure_need: number;
+    energy_baseline: number;
+    recovery_speed: number;
+    risk_tolerance: number;
+  };
+}
+
+// Job Requirement (for matching)
+export interface JobRequirement {
+  job_id: string;
+  title: string;
+  company?: string;
+  role_archetype_id: string;
+
+  // Customizations to the archetype
+  custom_personality_weights?: Partial<RoleArchetype['ideal_big_five']>;
+  custom_genius_weights?: { primary: number; secondary: number };
+
+  // Team context
+  team_size: number;
+  team_personality_balance?: {
+    current_team_profile: Partial<PersonalityProfile>;
+    needed_balance: string[];
+  };
+
+  // Additional requirements
+  min_confidence_score?: number;
+  min_verification_days?: number;
+}
+
+// Job Match Result
+export interface JobMatchResult {
+  job_id: string;
+  cv_id: string;
+  match_score: number; // 0-100
+  match_quality: 'perfect' | 'excellent' | 'good' | 'moderate' | 'poor';
+
+  component_scores: {
+    personality_match: number;
+    genius_match: number;
+    flow_match: number;
+    energy_match: number;
+    team_fit: number;
+  };
+
+  // Explanation
+  strengths: string[];
+  concerns: string[];
+  growth_areas: string[];
+
+  // Compatibility insights
+  compatibility_explanation: string;
+  team_balance_impact?: string;
+
+  calculated_at: number;
+}

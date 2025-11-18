@@ -4,7 +4,7 @@ import { formatDate, getMoodEmoji, getFlowLevel } from '../lib/utils';
 import type { MoodEntry, FlowSession } from '../types';
 
 interface DashboardProps {
-  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions') => void;
+  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching') => void;
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
@@ -54,7 +54,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <button
             onClick={() => onNavigate('mood')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
@@ -106,7 +106,47 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               View personality insights
             </p>
           </button>
+        </div>
 
+        {/* NEW: Career & Job Matching Section */}
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-xl p-6 mb-8">
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Revolutionary Career Matching
+          </h2>
+          <p className="text-purple-100 mb-6">
+            Discover your ideal career path based on personality, not resumes
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              onClick={() => onNavigate('job-crafting')}
+              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all text-left group"
+            >
+              <div className="text-3xl mb-2">🎯</div>
+              <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
+                Job Crafting
+              </h3>
+              <p className="text-sm text-gray-600">
+                Find roles that match your personality
+              </p>
+            </button>
+
+            <button
+              onClick={() => onNavigate('job-matching')}
+              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all text-left group"
+            >
+              <div className="text-3xl mb-2">🔑</div>
+              <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
+                Job Matching
+              </h3>
+              <p className="text-sm text-gray-600">
+                Match candidates like key in lock
+              </p>
+            </button>
+          </div>
+        </div>
+
+        {/* Original Settings Button */}
+        <div className="grid grid-cols-1 gap-4 mb-8">
           <button
             onClick={() => onNavigate('settings')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
