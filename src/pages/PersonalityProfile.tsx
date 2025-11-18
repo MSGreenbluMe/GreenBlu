@@ -8,7 +8,7 @@ import type { PersonalityProfile, PersonalityResponse } from '../types';
 
 interface PersonalityProfilePageProps {
   userId: string;
-  onNavigate?: (view: string) => void;
+  onNavigate?: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'onboarding') => void;
 }
 
 export default function PersonalityProfilePage({ userId, onNavigate }: PersonalityProfilePageProps) {

@@ -4,10 +4,12 @@ import PersonalityQuestion from './components/PersonalityQuestion';
 import Dashboard from './pages/Dashboard';
 import Onboarding from './pages/Onboarding';
 import PersonalityProfile from './pages/PersonalityProfile';
+import Interventions from './pages/Interventions';
 import { db } from './services/database';
+import { interventionTemplates } from './data/intervention-templates';
 import type { User } from './types';
 
-type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings';
+type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('onboarding');
@@ -20,6 +22,25 @@ function App() {
 
   async function initializeApp() {
     try {
+      // Initialize database
+      await db.init();
+
+      // Initialize intervention templates (only if not already loaded)
+      const existingTemplates = await db.getInterventionTemplates();
+      if (existingTemplates.length === 0) {
+        console.log('Initializing intervention templates...');
+        // Use direct DB access since templates table doesn't have add method
+        const dbInstance = (db as any).db;
+        if (dbInstance) {
+          const tx = dbInstance.transaction('intervention_templates', 'readwrite');
+          for (const template of interventionTemplates) {
+            await tx.store.put(template);
+          }
+          await tx.done;
+          console.log('Loaded', interventionTemplates.length, 'intervention templates');
+        }
+      }
+
       // Check if user exists
       const existingUser = await db.getUser('default-user');
 
@@ -122,6 +143,13 @@ function App() {
 
       {currentView === 'personality-profile' && user && (
         <PersonalityProfile
+          userId={user.user_id}
+          onNavigate={setCurrentView}
+        />
+      )}
+
+      {currentView === 'interventions' && user && (
+        <Interventions
           userId={user.user_id}
           onNavigate={setCurrentView}
         />

@@ -4,7 +4,7 @@ import { formatDate, getMoodEmoji, getFlowLevel } from '../lib/utils';
 import type { MoodEntry, FlowSession } from '../types';
 
 interface DashboardProps {
-  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings') => void;
+  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions') => void;
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
@@ -54,7 +54,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <button
             onClick={() => onNavigate('mood')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
@@ -65,6 +65,19 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Quick 15-second check-in
+            </p>
+          </button>
+
+          <button
+            onClick={() => onNavigate('interventions')}
+            className="bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
+          >
+            <div className="text-3xl mb-2">✨</div>
+            <h3 className="font-semibold text-white mb-1">
+              Interventions
+            </h3>
+            <p className="text-sm text-teal-50">
+              Boost your mood & focus
             </p>
           </button>
 
@@ -83,13 +96,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
           <button
             onClick={() => onNavigate('personality-profile')}
-            className="bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
           >
             <div className="text-3xl mb-2">🧠</div>
-            <h3 className="font-semibold text-white mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               Your Profile
             </h3>
-            <p className="text-sm text-teal-50">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               View personality insights
             </p>
           </button>
@@ -201,10 +214,10 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           <h2 className="text-2xl font-semibold mb-2">Coming Soon 🚀</h2>
           <ul className="space-y-2 text-sm">
             <li>• AI mood predictions (1h, 4h, 8h ahead)</li>
-            <li>• Smart intervention recommendations</li>
             <li>• Job crafting insights and career recommendations</li>
             <li>• Team analytics and collaboration optimization</li>
             <li>• Advanced flow state tracking and optimization</li>
+            <li>• Personalized intervention scheduling</li>
           </ul>
         </div>
       </div>

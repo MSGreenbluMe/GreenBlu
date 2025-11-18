@@ -394,7 +394,7 @@ export class QuestionSelector {
         return typeof response === 'number' && response >= 0 && response < (question.options?.length || 5);
 
       case 'multiple_choice':
-        return question.options?.includes(response);
+        return question.options?.includes(response) ?? false;
 
       case 'ranking':
         return Array.isArray(response) && response.length === question.options?.length;

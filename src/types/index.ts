@@ -256,9 +256,21 @@ export interface InterventionTemplate {
   avg_effectiveness: number;
   usage_count: number;
   completion_rate: number;
-  best_for_personality?: Partial<PersonalityProfile>;
+  best_for_personality?: {
+    big_five?: Partial<BigFive>;
+    mbti?: Partial<MBTI>;
+    disc?: Partial<DISC>;
+    derived?: Partial<DerivedTraits>;
+  };
   best_for_mood?: Partial<VAD>;
   contraindications?: string[];
+}
+
+// Scored intervention for recommendations
+export interface ScoredIntervention {
+  template: InterventionTemplate;
+  score: number;
+  reasons: string[];
 }
 
 // User
