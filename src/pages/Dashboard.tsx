@@ -115,7 +115,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             onClick={() => onNavigate('mood')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-teal-500 transition-all text-left"
           >
-            <div className="text-3xl mb-2">😊</div>
+            <div className="flex justify-center mb-2">
+              <Octopus vad={{ valence: 0.5, arousal: 0.5, dominance: 0.5 }} size={48} />
+            </div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               Mood Check-in
             </h3>
@@ -128,7 +130,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             onClick={() => onNavigate('interventions')}
             className="bg-teal-500 rounded-xl shadow-md border-2 border-teal-600 p-6 hover:bg-teal-600 transition-all text-left"
           >
-            <div className="text-3xl mb-2">✨</div>
+            <div className="flex justify-center mb-2">
+              <Octopus vad={{ valence: 0.8, arousal: 0.7, dominance: 0.8 }} size={48} />
+            </div>
             <h3 className="font-semibold text-white mb-1">
               Interventions
             </h3>
@@ -141,7 +145,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             onClick={() => onNavigate('personality')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-blue-500 transition-all text-left"
           >
-            <div className="text-3xl mb-2">💭</div>
+            <div className="flex justify-center mb-2">
+              <Octopus vad={{ valence: 0.3, arousal: 0.4, dominance: 0.6 }} size={48} />
+            </div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               Daily Question
             </h3>
@@ -154,7 +160,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             onClick={() => onNavigate('personality-profile')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-purple-500 transition-all text-left"
           >
-            <div className="text-3xl mb-2">🧠</div>
+            <div className="flex justify-center mb-2">
+              <Octopus vad={{ valence: 0.6, arousal: 0.5, dominance: 0.7 }} size={48} />
+            </div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               Your Profile
             </h3>
@@ -177,7 +185,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               onClick={() => onNavigate('job-crafting')}
               className="bg-white rounded-xl shadow-md border-2 border-gray-200 p-6 hover:border-purple-500 transition-all text-left"
             >
-              <div className="text-3xl mb-2">🎯</div>
+              <div className="flex justify-center mb-2">
+                <Octopus vad={{ valence: 0.7, arousal: 0.6, dominance: 0.8 }} size={48} />
+              </div>
               <h3 className="font-semibold text-gray-900 mb-1">
                 Job Crafting
               </h3>
@@ -190,7 +200,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               onClick={() => onNavigate('job-matching')}
               className="bg-white rounded-xl shadow-md border-2 border-gray-200 p-6 hover:border-purple-500 transition-all text-left"
             >
-              <div className="text-3xl mb-2">🔑</div>
+              <div className="flex justify-center mb-2">
+                <Octopus vad={{ valence: 0.9, arousal: 0.8, dominance: 0.9 }} size={48} />
+              </div>
               <h3 className="font-semibold text-gray-900 mb-1">
                 Job Matching
               </h3>
@@ -207,7 +219,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             onClick={() => onNavigate('settings')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-gray-400 transition-all text-left"
           >
-            <div className="text-3xl mb-2">⚙️</div>
+            <div className="flex justify-center mb-2">
+              <Octopus vad={{ valence: 0, arousal: 0, dominance: 0.5 }} size={48} />
+            </div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
               Settings
             </h3>
@@ -285,8 +299,15 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               <div className="text-sm opacity-90">
                 {calculateFlowStreak() === 1 ? 'day' : 'days'} in a row
               </div>
-              <div className="mt-4 text-2xl">
-                {calculateFlowStreak() >= 7 ? '🔥🔥🔥' : calculateFlowStreak() >= 3 ? '🔥🔥' : calculateFlowStreak() >= 1 ? '🔥' : '💪'}
+              <div className="mt-4 flex justify-center">
+                <Octopus
+                  vad={{
+                    valence: calculateFlowStreak() >= 3 ? 0.9 : calculateFlowStreak() >= 1 ? 0.7 : 0.5,
+                    arousal: calculateFlowStreak() >= 3 ? 0.8 : calculateFlowStreak() >= 1 ? 0.6 : 0.4,
+                    dominance: calculateFlowStreak() >= 3 ? 0.9 : calculateFlowStreak() >= 1 ? 0.7 : 0.5
+                  }}
+                  size={60}
+                />
               </div>
               <div className="text-xs mt-2 opacity-75">
                 {calculateFlowStreak() === 0
