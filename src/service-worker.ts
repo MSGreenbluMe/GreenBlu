@@ -2,6 +2,8 @@
 // Handles alarms, notifications, and background AI processing
 
 import type { MoodEntry, FlowSession } from './types';
+import { predictionPipeline } from './services/prediction-pipeline';
+import { db } from './services/database';
 
 // Listen for extension installation
 chrome.runtime.onInstalled.addListener((details) => {
@@ -86,14 +88,25 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 async function handleMorningCheckin() {
   const settings = await getUserSettings();
-  if (!settings?.notification_preferences?.morning_checkin_enabled) return;
+  // Morning check-in is always enabled as it's essential for circadian tracking
+
+  // Initialize prediction pipeline for the day
+  try {
+    await predictionPipeline.initialize('default-user');
+    console.log('Prediction pipeline initialized for morning');
+  } catch (error) {
+    console.error('Failed to initialize prediction pipeline:', error);
+  }
 
   chrome.notifications.create('morning-checkin', {
     type: 'basic',
     iconUrl: chrome.runtime.getURL('icons/icon-48.png'),
     title: 'Good Morning! 🌅',
     message: 'Start your day with a quick check-in. When did you wake up today?',
-    priority: 2
+    priority: 2,
+    buttons: [
+      { title: 'Check In Now' }
+    ]
   });
 }
 
@@ -114,11 +127,30 @@ async function handleMoodCheck() {
   const checkInterval = settings.notification_preferences.mood_check_frequency * 60 * 1000;
 
   if (timeSinceLastCheck >= checkInterval) {
+    // Use AI predictions to personalize notification
+    let message = 'How are you feeling right now? (Takes < 15 sec)';
+
+    if (lastMoodEntry) {
+      try {
+        await predictionPipeline.initialize('default-user');
+        const prediction = await predictionPipeline.predict(lastMoodEntry);
+
+        // If predicting low mood ahead, provide encouraging message
+        if (prediction['1h'].valence < 0 && prediction['1h'].confidence > 0.6) {
+          message = 'Quick check-in - we want to help keep you in a good mood! 😊';
+        } else if (prediction['1h'].valence > 0.6 && prediction['1h'].confidence > 0.6) {
+          message = 'You\'re doing great! Quick mood check to keep the momentum 🚀';
+        }
+      } catch (error) {
+        console.error('Failed to use predictions for notification:', error);
+      }
+    }
+
     chrome.notifications.create('mood-check', {
       type: 'basic',
       iconUrl: chrome.runtime.getURL('icons/icon-48.png'),
       title: 'Quick Mood Check-in 😊',
-      message: 'How are you feeling right now? (Takes < 15 sec)',
+      message,
       priority: 1
     });
   }
@@ -160,18 +192,40 @@ async function handlePersonalityQuestion() {
 
 // Helper functions
 async function getUserSettings() {
-  const result = await chrome.storage.local.get('user_settings');
-  return result.user_settings;
+  try {
+    await db.init();
+    const user = await db.getUser('default-user');
+    return user?.settings;
+  } catch (error) {
+    console.error('Failed to get user settings:', error);
+    return null;
+  }
 }
 
 async function getLastMoodEntry(): Promise<MoodEntry | null> {
-  const result = await chrome.storage.local.get('last_mood_entry');
-  return result.last_mood_entry || null;
+  try {
+    await db.init();
+    const moods = await db.getMoodHistory('default-user', 1);
+    return moods.length > 0 ? moods[moods.length - 1] : null;
+  } catch (error) {
+    console.error('Failed to get last mood entry:', error);
+    return null;
+  }
 }
 
 async function getCurrentFlowSession(): Promise<FlowSession | null> {
-  const result = await chrome.storage.local.get('current_flow_session');
-  return result.current_flow_session || null;
+  try {
+    await db.init();
+    const sessions = await db.getFlowSessions('default-user', 1);
+    // Return only if session is still active (no end_time)
+    if (sessions.length > 0 && !sessions[0].end_time) {
+      return sessions[0];
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to get current flow session:', error);
+    return null;
+  }
 }
 
 function calculateFlowProbability(moodEntry: MoodEntry): number {
