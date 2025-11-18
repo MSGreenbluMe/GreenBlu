@@ -7,7 +7,7 @@ import type { EnsemblePrediction } from '../services/ensemble-predictor';
 import type { MoodEntry, FlowSession, PersonalityProfile } from '../types';
 
 interface DashboardProps {
-  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching') => void;
+  onNavigate: (view: 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics') => void;
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
@@ -213,8 +213,23 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </div>
         </div>
 
-        {/* Original Settings Button */}
-        <div className="grid grid-cols-1 gap-4 mb-8">
+        {/* Analytics & Settings */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <button
+            onClick={() => onNavigate('analytics')}
+            className="bg-purple-500 rounded-xl shadow-md border-2 border-purple-600 p-6 hover:bg-purple-600 transition-all text-left"
+          >
+            <div className="flex justify-center mb-2">
+              <Octopus vad={{ valence: 0.6, arousal: 0.6, dominance: 0.7 }} size={48} />
+            </div>
+            <h3 className="font-semibold text-white mb-1">
+              Analytics & Insights
+            </h3>
+            <p className="text-sm text-purple-50">
+              Charts, trends, and AI accuracy
+            </p>
+          </button>
+
           <button
             onClick={() => onNavigate('settings')}
             className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-gray-400 transition-all text-left"

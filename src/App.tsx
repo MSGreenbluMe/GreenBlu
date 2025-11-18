@@ -7,11 +7,12 @@ import PersonalityProfile from './pages/PersonalityProfile';
 import Interventions from './pages/Interventions';
 import JobCrafting from './pages/JobCrafting';
 import JobMatching from './pages/JobMatching';
+import Analytics from './pages/Analytics';
 import { db } from './services/database';
 import { interventionTemplates } from './data/intervention-templates';
 import type { User } from './types';
 
-type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching';
+type View = 'onboarding' | 'mood' | 'dashboard' | 'personality' | 'personality-profile' | 'settings' | 'interventions' | 'job-crafting' | 'job-matching' | 'analytics';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>('onboarding');
@@ -176,6 +177,13 @@ function App() {
 
       {currentView === 'job-matching' && user && (
         <JobMatching
+          userId={user.user_id}
+          onNavigate={setCurrentView}
+        />
+      )}
+
+      {currentView === 'analytics' && user && (
+        <Analytics
           userId={user.user_id}
           onNavigate={setCurrentView}
         />
