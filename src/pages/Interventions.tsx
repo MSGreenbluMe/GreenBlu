@@ -194,6 +194,19 @@ export default function Interventions({ userId, onNavigate }: InterventionsProps
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-6xl mx-auto">
+        {/* Back Button */}
+        {onNavigate && (
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className="mb-6 flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
+          </button>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">

@@ -174,6 +174,17 @@ export default function Settings({ onNavigate }: SettingsProps) {
   return (
     <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => onNavigate('dashboard')}
+          className="mb-6 flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Dashboard
+        </button>
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button

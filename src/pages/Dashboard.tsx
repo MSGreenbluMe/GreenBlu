@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { db } from '../services/database';
-import { formatDate, getMoodEmoji, getFlowLevel } from '../lib/utils';
+import { formatDate, getFlowLevel } from '../lib/utils';
 import { predictionPipeline } from '../services/prediction-pipeline';
+import Octopus from '../components/Octopus';
 import type { EnsemblePrediction } from '../services/ensemble-predictor';
 import type { MoodEntry, FlowSession, PersonalityProfile } from '../types';
 
@@ -112,7 +113,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <button
             onClick={() => onNavigate('mood')}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-teal-500 transition-all text-left"
           >
             <div className="text-3xl mb-2">😊</div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
@@ -125,7 +126,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
           <button
             onClick={() => onNavigate('interventions')}
-            className="bg-gradient-to-r from-teal-500 to-blue-500 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
+            className="bg-teal-500 rounded-xl shadow-md border-2 border-teal-600 p-6 hover:bg-teal-600 transition-all text-left"
           >
             <div className="text-3xl mb-2">✨</div>
             <h3 className="font-semibold text-white mb-1">
@@ -138,7 +139,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
           <button
             onClick={() => onNavigate('personality')}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-blue-500 transition-all text-left"
           >
             <div className="text-3xl mb-2">💭</div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
@@ -151,7 +152,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
           <button
             onClick={() => onNavigate('personality-profile')}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-purple-500 transition-all text-left"
           >
             <div className="text-3xl mb-2">🧠</div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
@@ -164,7 +165,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* NEW: Career & Job Matching Section */}
-        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-xl p-6 mb-8">
+        <div className="bg-purple-500 rounded-xl shadow-md border-2 border-purple-600 p-6 mb-8">
           <h2 className="text-2xl font-bold text-white mb-2">
             Revolutionary Career Matching
           </h2>
@@ -174,10 +175,10 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={() => onNavigate('job-crafting')}
-              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all text-left group"
+              className="bg-white rounded-xl shadow-md border-2 border-gray-200 p-6 hover:border-purple-500 transition-all text-left"
             >
               <div className="text-3xl mb-2">🎯</div>
-              <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
+              <h3 className="font-semibold text-gray-900 mb-1">
                 Job Crafting
               </h3>
               <p className="text-sm text-gray-600">
@@ -187,10 +188,10 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
             <button
               onClick={() => onNavigate('job-matching')}
-              className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all text-left group"
+              className="bg-white rounded-xl shadow-md border-2 border-gray-200 p-6 hover:border-purple-500 transition-all text-left"
             >
               <div className="text-3xl mb-2">🔑</div>
-              <h3 className="font-semibold text-gray-900 mb-1 group-hover:text-purple-600 transition-colors">
+              <h3 className="font-semibold text-gray-900 mb-1">
                 Job Matching
               </h3>
               <p className="text-sm text-gray-600">
@@ -204,7 +205,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <div className="grid grid-cols-1 gap-4 mb-8">
           <button
             onClick={() => onNavigate('settings')}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow text-left"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-gray-400 transition-all text-left"
           >
             <div className="text-3xl mb-2">⚙️</div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
@@ -219,7 +220,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         {/* Weekly Summary & Progress Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Weekly Summary */}
-          <div className="bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-teal-500 rounded-xl shadow-md border-2 border-teal-600 p-6 text-white">
             <h3 className="text-lg font-semibold mb-4">This Week</h3>
             <div className="space-y-3">
               <div>
@@ -242,7 +243,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </div>
 
           {/* Personality Assessment Progress */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Personality Profile
             </h3>
@@ -256,7 +257,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
+                    className="bg-purple-500 h-2 rounded-full transition-all"
                     style={{ width: `${personalityProfile?.assessment_progress || 0}%` }}
                   ></div>
                 </div>
@@ -277,7 +278,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </div>
 
           {/* Flow Streak */}
-          <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-orange-500 rounded-xl shadow-md border-2 border-orange-600 p-6 text-white">
             <h3 className="text-lg font-semibold mb-4">Flow Streak</h3>
             <div className="text-center">
               <div className="text-6xl font-bold mb-2">{calculateFlowStreak()}</div>
@@ -300,7 +301,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               Mood Check-ins (7 days)
             </div>
@@ -309,7 +310,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               Flow Hours (7 days)
             </div>
@@ -318,7 +319,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               Avg Flow Quality
             </div>
@@ -329,7 +330,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* Recent Mood History */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border-2 border-gray-200 dark:border-gray-700 p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Recent Mood History
           </h2>
@@ -348,10 +349,12 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 return (
                   <div
                     key={entry.entry_id}
-                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border-2 border-gray-200 dark:border-gray-600"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="text-3xl">{getMoodEmoji(entry.vad)}</div>
+                      <div>
+                        <Octopus vad={entry.vad} size={60} />
+                      </div>
                       <div>
                         <div className="font-medium text-gray-900 dark:text-white">
                           {formatDate(entry.timestamp)}
@@ -366,12 +369,12 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
                     <div className="text-right">
                       {flowLevel !== 'not_in_flow' && (
-                        <div className="text-sm text-teal-600 dark:text-teal-400">
+                        <div className="text-sm text-teal-600 dark:text-teal-400 font-semibold">
                           {flowLevel === 'deep_flow'
-                            ? '🌊 Deep Flow'
+                            ? 'Deep Flow'
                             : flowLevel === 'flow'
-                            ? '🌊 Flow'
-                            : '🌊 Near Flow'}
+                            ? 'Flow'
+                            : 'Near Flow'}
                         </div>
                       )}
                       <div className="text-xs text-gray-500">
@@ -388,12 +391,12 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* AI Predictions Section */}
         {predictions && (
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-xl p-6 mb-8">
+          <div className="bg-purple-500 rounded-xl shadow-md border-2 border-purple-600 p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-bold text-white">
                 AI Mood Predictions
               </h2>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs text-white font-semibold">
+              <span className="px-3 py-1 bg-white/30 rounded-lg text-xs text-white font-semibold">
                 PREDICTED
               </span>
             </div>
@@ -403,26 +406,28 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* 1h Prediction */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-purple-100">In 1 Hour</span>
-                  <span className="text-3xl">{getMoodEmoji(predictions['1h'])}</span>
+              <div className="bg-white rounded-lg p-4 border-2 border-purple-300">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-purple-700 font-semibold">In 1 Hour</span>
+                </div>
+                <div className="flex justify-center mb-3">
+                  <Octopus vad={predictions['1h']} size={80} />
                 </div>
                 <div className="space-y-1 text-sm">
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Valence:</span>
                     <span className="font-semibold">{predictions['1h'].valence.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Arousal:</span>
                     <span className="font-semibold">{predictions['1h'].arousal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Dominance:</span>
                     <span className="font-semibold">{predictions['1h'].dominance.toFixed(2)}</span>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-white/20">
-                    <div className="flex justify-between text-purple-100">
+                  <div className="mt-2 pt-2 border-t border-gray-300">
+                    <div className="flex justify-between text-purple-700">
                       <span>Confidence:</span>
                       <span className="font-semibold">{(predictions['1h'].confidence * 100).toFixed(0)}%</span>
                     </div>
@@ -431,26 +436,28 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               </div>
 
               {/* 4h Prediction */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-purple-100">In 4 Hours</span>
-                  <span className="text-3xl">{getMoodEmoji(predictions['4h'])}</span>
+              <div className="bg-white rounded-lg p-4 border-2 border-purple-300">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-purple-700 font-semibold">In 4 Hours</span>
+                </div>
+                <div className="flex justify-center mb-3">
+                  <Octopus vad={predictions['4h']} size={80} />
                 </div>
                 <div className="space-y-1 text-sm">
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Valence:</span>
                     <span className="font-semibold">{predictions['4h'].valence.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Arousal:</span>
                     <span className="font-semibold">{predictions['4h'].arousal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Dominance:</span>
                     <span className="font-semibold">{predictions['4h'].dominance.toFixed(2)}</span>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-white/20">
-                    <div className="flex justify-between text-purple-100">
+                  <div className="mt-2 pt-2 border-t border-gray-300">
+                    <div className="flex justify-between text-purple-700">
                       <span>Confidence:</span>
                       <span className="font-semibold">{(predictions['4h'].confidence * 100).toFixed(0)}%</span>
                     </div>
@@ -459,26 +466,28 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
               </div>
 
               {/* 8h Prediction */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-purple-100">In 8 Hours</span>
-                  <span className="text-3xl">{getMoodEmoji(predictions['8h'])}</span>
+              <div className="bg-white rounded-lg p-4 border-2 border-purple-300">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-purple-700 font-semibold">In 8 Hours</span>
+                </div>
+                <div className="flex justify-center mb-3">
+                  <Octopus vad={predictions['8h']} size={80} />
                 </div>
                 <div className="space-y-1 text-sm">
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Valence:</span>
                     <span className="font-semibold">{predictions['8h'].valence.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Arousal:</span>
                     <span className="font-semibold">{predictions['8h'].arousal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-white">
+                  <div className="flex justify-between text-gray-700">
                     <span>Dominance:</span>
                     <span className="font-semibold">{predictions['8h'].dominance.toFixed(2)}</span>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-white/20">
-                    <div className="flex justify-between text-purple-100">
+                  <div className="mt-2 pt-2 border-t border-gray-300">
+                    <div className="flex justify-between text-purple-700">
                       <span>Confidence:</span>
                       <span className="font-semibold">{(predictions['8h'].confidence * 100).toFixed(0)}%</span>
                     </div>
@@ -488,9 +497,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </div>
 
             {predictions.metadata.recommendedActions.length > 0 && (
-              <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                <h3 className="text-sm font-semibold text-white mb-2">Recommended Actions</h3>
-                <ul className="space-y-1 text-sm text-purple-100">
+              <div className="mt-4 bg-white rounded-lg p-4 border-2 border-purple-300">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Recommended Actions</h3>
+                <ul className="space-y-1 text-sm text-gray-700">
                   {predictions.metadata.recommendedActions.map((action: string, idx: number) => (
                     <li key={idx}>• {action}</li>
                   ))}
@@ -501,7 +510,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         )}
 
         {predictionsLoading && (
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-xl p-6 mb-8">
+          <div className="bg-purple-500 rounded-xl shadow-md border-2 border-purple-600 p-6 mb-8">
             <div className="text-center py-8 text-white">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div>
               <div>Loading AI predictions...</div>
